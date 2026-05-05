@@ -359,10 +359,25 @@ res    = st.session_state.get("result")
 demand = st.session_state.get("demand", demand_inputs)
 mtype_used = st.session_state.get("mtype", mtype)
 
-if res is None:
-    st.stop()
+# --- 수정 후 (권장하는 구조) ---
+# 1. 먼저 세션에서 결과를 가져옵니다.
+res = st.session_state.get("result")
 
-df    = res["df"]
+# 2. 결과가 존재할 때만 아래 로직을 실행하도록 감싸줍니다.
+if res is not None:
+    st.success("✅ 최적화 계산 완료!")
+    
+    # 안전하게 데이터를 가져옵니다.
+    df = res.get("df")
+    
+    if df is not None:
+        st.subheader("📊 최적화 결과 데이터")
+        st.dataframe(df) # 결과 표 출력
+    else:
+        st.error("데이터프레임을 생성하는 데 실패했습니다.")
+else:
+    # 결과가 없을 때(앱 초기 실행 시) 보여줄 화면
+    st.info("왼쪽 사이드바에서 파라미터를 설정한 후 '최적화 실행' 버튼을 눌러주세요.")
 TH    = res["TH"]
 D     = res["D"]
 total = res["total_cost"]
